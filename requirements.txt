@@ -189,7 +189,6 @@ pysnmp==4.4.12
 python-dateutil==2.8.1
 pytz==2019.3
 pytz-deprecation-shim==0.1.0.post0
-pywin32==225
 pywinpty==1.1.6
 pyzmq==22.3.0
 redis==3.5.3
