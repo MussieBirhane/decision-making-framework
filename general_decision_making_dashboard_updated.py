@@ -1,5 +1,9 @@
 
 import streamlit as st
+
+# set the page layout as wide
+st.set_page_config(layout="wide")
+
 import torch
 import torchvision
 import matplotlib.pyplot as plt
@@ -10,7 +14,7 @@ import torch.nn.functional as F
 from torchvision import transforms
 from torchvision.transforms import Compose, Resize, ToTensor
 
-st.sidebar.selectbox("Menu", ("Parameter weights", "Reuse Evaluation", "Machine Learning Model"))
+st.sidebar.selectbox("Menu", ("Parameter weights", "Reusability Evaluation", "Machine Learning Model"))
 
 header = st.container()
 parameter_weight = st.container()
@@ -19,6 +23,8 @@ image_classification = st.container()
 structural_performance = st.container()
 life_cycle_assessment = st.container()
 general_decision = st.container()
+
+@st.cache
 
 def yes_or_no(userinput):
     if userinput == 'Yes':
@@ -90,14 +96,15 @@ def predict_image(img, model):
     return preds[0].item()
 
 
-
 with header:
-    st.header('Decision making framework for reuse of structural steel elements')
-    st.write('This dashboard evaluates the reuse potential of existing steel structures considering '
-             'the logistic feasibility, the structural visual inspection, and the structural performance.')
+    st.header('Decision making framework for efficient end-of-life scenarios of structural steel elements')
+    st.write('This user dashboard evaluates the reuse potential of existing steel structures considering '
+             'the logistic feasibility, the structural visual inspection, and the structural performance. '
+             'In addition, the user is provided with a simplified method to compute the life cycle assessment '
+             'of any possible end-of-life scenario.')
 
 with logistic_feasibility:
-    st.header('Logistic Feasibility')
+    st.header('1 - Logistic Feasibility')
 
     selec_col, displ_col = st.columns(2)
 
@@ -133,15 +140,18 @@ with logistic_feasibility:
     #displ_col.write(f'The logistic feasibility status: {status((logistic_performance / 3)*100, 75)}')
 
 with image_classification:
-    st.header('Structural Visual Inspection')
-    st.write('This criteria is supplemented with an automated image classification CNN tool. Images can be uploaded and parameters '
-             'related to corrosion, connection types and damage status are evaluated automatically.')
+    image_classification_performance = 0
+    st.header('2 - Structural Visual Inspection')
+    st.write('This criteria is supplemented with an automated convolutional neural network (CNN) based image '
+             'classification tool. Images can be uploaded and parameters related to corrosion, connection types and '
+             'damage status are evaluated automatically.')
 
     input_image = st.radio('How would you like to perform the structural visual inspection?', ('I do have image files', 'I do not have image files'), index=1)
 
     if input_image == 'I do have image files':
 
-        image_file = st.file_uploader("Please upload structural steel images here", type=["jpg", "png", "jpeg", "webp"], accept_multiple_files=True)
+        image_file = st.file_uploader("Please upload structural steel images here.", type=["jpg", "png", "jpeg", "webp"],
+                                      accept_multiple_files=True, help="Valid inputs are .jpg, .png, .jpeg, .webp")
 
         from itertools import cycle
         cols = cycle(st.columns(4))
@@ -158,6 +168,8 @@ with image_classification:
 
             # Deep Convolutional Neural Network (CNN)
             # Define ImageClassificationBase class which contains helper methods for training & validation
+
+            @st.cache
 
             class ImageClassificationBase(nn.Module):
                 def training_step(self, batch):
@@ -313,8 +325,8 @@ with image_classification:
 
             no_of_images = 0
             no_of_corroded_images = 0
-            no_of_bolted_images = 0
-            no_of_damaged_images = 0
+            no_of_bolted_images = 2
+            no_of_damaged_images = 2
 
             for image in image_file:
                 no_of_images += 1
@@ -336,13 +348,13 @@ with image_classification:
                 if label_1 == 'Corroded': no_of_corroded_images += 1
                 if label_2 == 'Bolted': no_of_bolted_images += 1
                 if label_3 == 'Damaged': no_of_damaged_images += 1
-                next(cols).image(image, width=150, caption=label_1+'/'+label_2+'/'+label_3)
-
+                next(cols).image(image, width=150, caption=label_1)
+                #next(cols).image(image, width=150, caption=label_1 + '/' + label_2 + '/' + label_3)
             selec_col, displ_col = st.columns(2)
             selec_col.write('Depending on the loaded images:')
             selec_col.write('{:0.2f}% of the images are corroded.'.format((no_of_corroded_images /no_of_images) * 100))
-            selec_col.write('{:0.2f}% of the joints are bolted connection.'.format((no_of_bolted_images /no_of_images)*100))
-            selec_col.write('{:0.2f}% of the images are damaged.'.format((no_of_damaged_images /no_of_images)*100))
+            #selec_col.write('{:0.2f}% of the joints are bolted connection.'.format((no_of_bolted_images /no_of_images)*100))
+            #selec_col.write('{:0.2f}% of the images are damaged.'.format((no_of_damaged_images /no_of_images)*100))
 
             selec_col, displ_col = st.columns(2)
 
@@ -380,7 +392,7 @@ with image_classification:
         corrosion = selec_col.selectbox('Is the element corroded?', options=['Yes', 'No'], index=0)
         damage = selec_col.selectbox('Is the element damaged or distorted?', options=['Yes', 'No'], index=0)
         composite_connection = selec_col.selectbox('Are there steel-concrete composite connections?',
-                                                   options=['Yes', 'No'], index=0)
+                                                   options=['Yes', 'No'], index=1)
         fire_protection = displ_col.selectbox('Is there fire protection on the element?',
                                               options=['Yes', 'No'], index=0)
         sufficient_amount = displ_col.selectbox('Availability of sufficient amount of potential reusable elements?', options=['Yes', 'No'], index=0)
@@ -395,7 +407,9 @@ with image_classification:
         #displ_col.write(f'The structural element status: {status((image_classification_performance/5)*100, 75)}')
 
 with structural_performance:
-    st.header('Structural performance')
+    st.header('3 - Structural Performance')
+    st.write('This criteria evaluates the parameters related to the mechanical and physical performance of each '
+             'structural elements under consideration.')
 
     selec_col, displ_col = st.columns(2)
 
@@ -426,7 +440,11 @@ with structural_performance:
     #displ_col.write(f'The structural performance status: {status((structural_performance_value/3)*100, 85)}')
 
 with life_cycle_assessment:
-    st.header('Life cycle assessment (LCA)')
+    st.header('4 - Life Cycle Assessment (LCA)')
+    st.write('The life cycle assessment is reported based on a simplified embodied carbon computation from the '
+             'cradle-to-cradle approach. For this, the weights of the structural steel elements and the associated '
+             'carbon factors are considered.')
+
     st.write('Please select how you prefer to input the weight of the elements.')
 
     box1, box2, box3 = st.columns(3)
@@ -454,34 +472,41 @@ with life_cycle_assessment:
     elif option3:
         total_weight = st.text_input('Bulk weight of the material [kg]')
 
-    checked = st.button('Compute the embodied carbon, kgCO2 e')
+    checked = st.button('Compute the embodied carbon, kgCO2e')
 
     if checked:
-        st.write('According to the cradle-to-cradle life cycle assessment, the embodied carbon at different stage is reported below.')
-        st.write('Total weight of structural element:', float(total_weight), 'kg')
-        st.write('Product stage A1-A3:', float(total_weight) * 1.13, 'kgCO2 e')
+        st.write('According to the cradle-to-cradle life cycle assessment, the embodied carbon at different stage is reported below:')
+        st.write('Total weight of structural element: {:0.1f} kg'.format(float(total_weight)))
+        st.write('Product stage A1-A3: {:0.1f} kgCO2e'.format(float(total_weight) * 1.13))
         #st.write('Construction process stage A4-A5 is:', total_weight* )
         #st.write('Usage stage B1-B7 is:', total_weight *)
-        st.write('End of life stage C1-C4:', float(total_weight) * 0.018, 'kgCO2 e')
-        st.write('Reuse, recycle and recovery stage D:', float(total_weight) * -0.413, 'kgCO2 e')
+        st.write('End of life stage C1-C4: {:0.1f} kgCO2e'.format(float(total_weight) * 0.018))
+        st.write('Reuse, recycle and recovery stage D: {:0.1f} kgCO2e'.format(float(total_weight) * -0.413))
 
 with general_decision:
-    st.header('General suggestion')
+    st.header('General end-of-life scenario suggestion')
+    st.write('Based on the input of the information for each criteria i.e., logistic feasibility, structural visual '
+             'inspection and structural performance, the weighted sum of the parameters is presented in percentage. '
+             'Accordingly, the weighted sum of each criteria is compared with the criteria threshold value which '
+             'is defined by the authors apriori.'
+             'The criteria threshold value defined for logistic feasibility, structural visual inspection and '
+             'structural performance is 75%, 70% and 80%, respectively.')
+
     # logistic feasibility
-    st.write('The logistic feasibility performance is: {:0.2f}%'.format((logistic_performance/17)*100))
-    st.write(f'The logistic feasibility status: {status((logistic_performance/17)*100, 75)}')
+    st.write('1 - Logistic feasibility: {:0.1f}%'.format((logistic_performance/17)*100))
+    #st.write(f' -- Status: {status((logistic_performance/17)*100, 75)}')
 
     # structural image classification task
-    st.write('The structural element condition is: {:0.2f}%'.format((image_classification_performance/17)*100))
-    st.write(f'The structural element status: {status((image_classification_performance/17)*100, 70)}')
+    st.write('2 - Structural visual inspection: {:0.1f}%'.format((image_classification_performance/17)*100))
+    #st.write(f'Status: {status((image_classification_performance/17)*100, 70)}')
 
     # structural performance
-    st.write('The structural performance is: {:0.2f}%'.format((structural_performance_value/15)*100))
-    st.write(f'The structural performance status: {status((structural_performance_value/15)*100, 80)}')
+    st.write('3 - The structural performance: {:0.1f}%'.format((structural_performance_value/15)*100))
+    #st.write(f'Status: {status((structural_performance_value/15)*100, 80)}')
 
 
-    if(status((image_classification_performance/17)*100, 75) == 'Pass' and status((logistic_performance / 17)*100, 75) == 'Pass' and status((structural_performance_value/15)*100, 80) == 'Pass' ):
-        st.success('Based on the input evaluation, the final suggestion is to: Dismantle - Reuse')
+    if(status((image_classification_performance/17)*100, 60) == 'Pass' and status((logistic_performance / 17)*100, 75) == 'Pass' and status((structural_performance_value/15)*100, 80) == 'Pass' ):
+        st.success('Based on the input evaluation, the efficient end-of-life scenario is to: Dismantle - Reuse')
         #st.success('The overall reusability analysis shows {:0.3f}%'.format(((structural_performance_value/3)*100 + (image_classification_performance/5)*100 + (logistic_performance / 3)*100)/3))
     else:
-        st.success('Based on the input evaluation, the final suggestion is to: Demolition - Recycle')
+        st.success('Based on the input evaluation, the efficient end-of-life scenario is to: Demolition - Recycle')
