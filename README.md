@@ -1,4 +1,4 @@
-# decision-making-framework
+# Decision Making Framework for End-of-Life Buildings using Convolutional Neural Networks (CNN)
 
 The construction industry is the main contributor to global greenhouse gas
 (GHG) emissions, resource consumption and demolition-related waste generation.
