@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.1/p5.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+
+    <link href="https://fonts.googleapis.com/css?family=Roboto+Condensed" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="style.css" />
+    <meta charset="utf-8" />
+  </head>
+  <body>
+    <script src="sketch.js"></script>
+
+    <img src="./assets/Logo_Politecnico_Milano.png" alt="PoliMi Logo" />
+
+    <h1>Decision making framework for efficient end-of-life scenarios of structural steel elements</h1>
+
+    <p>
+      This user dashboard evaluates the reuse potential of existing steel structures considering the logistic feasibility, the structural visual
+      inspection, and the structural performance. In addition, the user is provided with a simplified method to compute the life cycle assessment of
+      any possible end-of-life scenario.
+    </p>
+    <br />
+
+    <div id="Logistic_Feasibility" class="container" style="padding-bottom: 30px">
+      <h2 style="margin: auto">1) Logistic Feasibility</h2>
+      <div class="inputs">
+        <div style="padding-right: 20px; display: table-cell">
+          <label for="Item_Weight">Weight of the structural element:</label>
+          <div>
+            <select id="Item_Weight" name="Item_Weight">
+              <option value="" disabled selected hidden hidden>Please select</option>
+              <option value="1">Very light [< 0.1 ton]</option>
+              <option value="2">Light [0.1 - 0.2 ton]</option>
+              <option value="3">Heavy [0.2 - 0.5 ton]</option>
+              <option value="4">Very heavy [> 0.5 ton]</option>
+            </select>
+          </div>
+
+          <label for="Easy_Handle">Ease to handle, transport, store, and process?</label>
+          <div>
+            <select id="Easy_Handle" name="Easy_Handle">
+              <option value="" disabled selected hidden>Please select</option>
+              <option value="1">Yes</option>
+              <option value="0">No</option>
+            </select>
+          </div>
+
+          <label for="Exist_Infrastructure">Availability of dismantle-sort-repair infrastructure </label>
+          <div>
+            <select id="Exist_Infrastructure" name="Exist_Infrastructure">
+              <option value="" disabled selected hidden>Please select</option>
+              <option value="1">Yes</option>
+              <option value="0">No</option>
+            </select>
+          </div>
+        </div>
+        <div style="display: table-cell">
+          <label for="Special_Protection">Special protection is needed for transportation? </label>
+          <div>
+            <select id="Special_Protection" name="Special_Protection">
+              <option value="" disabled selected hidden>Please select</option>
+              <option value="0">Yes</option>
+              <option value="1">No</option>
+            </select>
+          </div>
+
+          <label for="Dismantle_Phase">Dismantle phase is compatible with demolition work? </label>
+          <div>
+            <select id="Dismantle_Phase" name="Dismantle_Phase">
+              <option value="" disabled selected hidden>Please select</option>
+              <option value="1">Yes</option>
+              <option value="0">No</option>
+            </select>
+          </div>
+
+          <label for="Storage_Availability"> Availability of storage</label>
+          <div>
+            <select id="Storage_Availability" name="Storage_Availability">
+              <option value="" disabled selected hidden>Please select</option>
+              <option value="1">Yes</option>
+              <option value="0">No</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="Visual_Inspection" class="container" style="padding-bottom: 30px">
+      <h2 style="margin: auto">2) Structural Visual Inspection</h2>
+      <p>
+        This criteria is supplemented with an automated convolutional neural network (CNN) based image classification tool. Images can be uploaded and
+        parameters related to corrosion, connection types and damage status are evaluated automatically.
+      </p>
+      <button id="Load_Button" type="file">Load Images</button>
+      <!--<div id="Sample_Images"></div>-->
+      <p id="N_Corroded_Images">Depending on the loaded images:</p>
+
+      <div class="inputs">
+        <div style="padding-right: 20px; display: table-cell">
+          <label for="Composite_Connection">Are there steel-concrete composite connections?</label>
+          <div>
+            <select id="Composite_Connection" name="Composite_Connection">
+              <option value="" disabled selected hidden>Please select</option>
+              <option value="0">Yes</option>
+              <option value="1">No</option>
+            </select>
+          </div>
+
+          <label for="Fire_Protection">Is there fire protection on the element?</label>
+          <div>
+            <select id="Fire_Protection" name="Fire_Protection">
+              <option value="" disabled selected hidden>Please select</option>
+              <option value="1">Yes</option>
+              <option value="0">No</option>
+            </select>
+          </div>
+        </div>
+        <div style="display: table-cell">
+          <label for="Sufficient_Amount">Availability of sufficient amount of potential reusable elements?</label>
+          <div>
+            <select id="Sufficient_Amount" name="Sufficient_Amount">
+              <option value="" disabled selected hidden>Please select</option>
+              <option value="1">Yes</option>
+              <option value="0">No</option>
+            </select>
+          </div>
+
+          <label for="Geometry_Check">Does the element pass standard geometric check without modification?</label>
+          <div>
+            <select id="Geometry_Check" name="Geometry_Check">
+              <option value="" disabled selected hidden>Please select</option>
+              <option value="1">Yes</option>
+              <option value="0">No</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="Structural_Performance" class="container" style="padding-bottom: 30px">
+      <h2 style="margin: auto">3) Structural Performance</h2>
+      <p>
+        This criteria evaluates the parameters related to the mechanical and physical performance of each structural elements under consideration.
+      </p>
+      <div class="inputs">
+        <div style="padding-right: 20px; display: table-cell">
+          <label for="Data_Quality">Quality of available data?</label>
+          <div>
+            <select id="Data_Quality" name="Data_Quality">
+              <option value="" disabled selected hidden>Please select</option>
+              <option value="1">No documentation</option>
+              <option value="2">Only drawing available</option>
+              <option value="3">Drawings and calculation report available</option>
+              <option value="4">All detailed documentation available</option>
+            </select>
+          </div>
+
+          <label for="Construction_Period">Is the building designed and constructed after year 2005?</label>
+          <div>
+            <select id="Construction_Period" name="Construction_Period">
+              <option value="" disabled selected hidden>Please select</option>
+              <option value="1">Yes</option>
+              <option value="0">No</option>
+            </select>
+          </div>
+
+          <label for="Maintenance">Did the structure has maintenance before? </label>
+          <div>
+            <select id="Maintenance" name="Maintenance">
+              <option value="" disabled selected hidden>Please select</option>
+              <option value="1">Yes</option>
+              <option value="0">No</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display: table-cell">
+          <label for="Purpose">Is the structural element unique for its purpose? </label>
+          <div>
+            <select id="Purpose" name="Purpose">
+              <option value="" disabled selected hidden>Please select</option>
+              <option value="0">Yes</option>
+              <option value="1">No</option>
+            </select>
+          </div>
+
+          <label for="Testing">Is it possible to conduct sample testing? </label>
+          <div>
+            <select id="Testing" name="Testing">
+              <option value="" disabled selected hidden>Please select</option>
+              <option value="1">Yes</option>
+              <option value="0">No</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="Life_Cycle" class="container" style="padding-bottom: 30px">
+      <h2 style="margin: auto">4) Life Cycle Assessment (LCA)</h2>
+      <p>
+        The life cycle assessment is reported based on a simplified embodied carbon computation from the cradle-to-cradle approach. For this, the
+        weights of the structural steel elements and the associated carbon factors are considered.
+      </p>
+      <p>Please select how you prefer to input the weight of the elements.</p>
+
+      <div style="margin-bottom: 20px">
+        <input type="checkbox" name="Element_Weight" id="Element_Weight" value="" />
+        <label style="padding-right: 10%; padding-top: 0px; display: inline" for="Element_Weight"> Weight of single element</label>
+        <input type="checkbox" name="Element_Dim" id="Element_Dim" value="" />
+        <label style="padding-right: 10%; padding-top: 0px; display: inline" for="Element_Dim"> Dimension of single element</label>
+        <input type="checkbox" name="Bulk_Weight" id="Bulk_Weight" value="" />
+        <label style="padding-right: 10%; padding-top: 0px; display: inline" for="Bulk_Weight"> Bulk material weight</label>
+      </div>
+      <button id="Compute_Carbon">Compute the embodied carbon, kgCO<sub>2</sub>e</button>
+    </div>
+
+    <div id="Suggestion" class="container" style="padding-bottom: 30px">
+      <h2 style="margin: auto">General end-of-life scenario suggestion</h2>
+      <p>
+        Based on the input of the information for each criteria i.e., logistic feasibility, structural visual inspection and structural performance,
+        the weighted sum of the parameters is presented in percentage. Accordingly, the weighted sum of each criteria is compared with the criteria
+        threshold value which is defined by the authors apriori.The criteria threshold value defined for logistic feasibility, structural visual
+        inspection and structural performance is 75%, 70% and 80%, respectively.
+      </p>
+      <p id="Logistic"></p>
+      <p id="Inspection"></p>
+      <p id="Performance"></p>
+    </div>
+
+    <div id="Result">Based on the input evaluation, the efficient end-of-life scenario is:</div>
+
+    <footer>
+      <p>Authors: Mussie Birhane, Murat Güven</p>
+    </footer>
+  </body>
+</html>
